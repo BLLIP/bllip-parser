@@ -2,8 +2,8 @@ TARGETS = copy-trees-ss prepare-new-data prepare-ec-data ptb
 
 top: $(TARGETS)
 
-CXX = g++
-CC = $(CXX)
+# CXX = g++
+# CC = $(CXX)
 # CFLAGS = -MMD -O6 -Wall -ffast-math -finline-functions -fstrict-aliasing $(GCCFLAGS)
 # CFLAGS = -g -MMD -Wall
 

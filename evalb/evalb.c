@@ -20,8 +20,12 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <malloc.h>
 
+#ifdef __APPLE__
+#include <malloc/malloc.h>
+#else
+#include <malloc.h>
+#endif
 
 /* Internal Data format -------------------------------------------*/
 /*                                                                 */

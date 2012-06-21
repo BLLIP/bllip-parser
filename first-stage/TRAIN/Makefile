@@ -15,7 +15,7 @@ default: all
 # this rule automatically makes our dependency files.
 # run "make Makefile.dep" if you add any files or change dependencies.
 Makefile.dep:
-	gcc -MM *.C > Makefile.dep
+	$(CXX) -MM *.C > Makefile.dep
 
 # include the automatically generated dependency files
 -include Makefile.dep
@@ -159,7 +159,7 @@ $(DATA)/ww.g : kn3Counts $(DATA)/pSgT.txt
 # Build Training programs
 
 .C.o:
-	g++ $(CFLAGS) -c $<
+	$(CXX) $(CFLAGS) -c $<
  
 RCOUNTS_OBJS = \
 	ClassRule.o \
@@ -180,7 +180,7 @@ RCOUNTS_OBJS = \
 	utils.o \
 	rCounts.o
 rCounts: $(RCOUNTS_OBJS)
-	g++ $(CFLAGS) $(RCOUNTS_OBJS) -o rCounts 
+	$(CXX) $(CFLAGS) $(RCOUNTS_OBJS) -o rCounts 
 
 ISCALE_OBJS = \
 	ECArgs.o \
@@ -194,7 +194,7 @@ ISCALE_OBJS = \
 	utils.o \
 	iScale.o
 iScale: $(ISCALE_OBJS)
-	g++ $(CFLAGS) $(ISCALE_OBJS) -o iScale 
+	$(CXX) $(CFLAGS) $(ISCALE_OBJS) -o iScale 
  
 SELFEATS_OBJS = \
 	ECArgs.o \
@@ -209,7 +209,7 @@ SELFEATS_OBJS = \
 	utils.o \
 	selFeats.o
 selFeats: $(SELFEATS_OBJS)
-	g++ $(CFLAGS) $(SELFEATS_OBJS) -o selFeats 
+	$(CXX) $(CFLAGS) $(SELFEATS_OBJS) -o selFeats 
 
  
 TRAINRS_OBJS = \
@@ -233,7 +233,7 @@ TRAINRS_OBJS = \
 	utils.o \
 	trainRs.o
 trainRs: $(TRAINRS_OBJS)
-	g++ $(CFLAGS) $(TRAINRS_OBJS) -o trainRs 
+	$(CXX) $(CFLAGS) $(TRAINRS_OBJS) -o trainRs 
 
  
 KN3COUNTS_OBJS = \
@@ -257,7 +257,7 @@ KN3COUNTS_OBJS = \
 	utils.o \
 	kn3Counts.o
 kn3Counts: $(KN3COUNTS_OBJS)
-	g++ $(CFLAGS) $(KN3COUNTS_OBJS) -o kn3Counts 
+	$(CXX) $(CFLAGS) $(KN3COUNTS_OBJS) -o kn3Counts 
 
 AUXIT_OBJS = \
 	BrownIter.o \
@@ -271,7 +271,7 @@ AUXIT_OBJS = \
 	auxify.o \
 	auxIt.o
 auxIt: $(AUXIT_OBJS)
-	g++ $(AUXIT_OBJS) -o auxIt
+	$(CXX) $(AUXIT_OBJS) -o auxIt
 
 PSGT_OBJS = \
 	ECArgs.o \
@@ -285,7 +285,7 @@ PSGT_OBJS = \
 	UnitRules.o \
 	pSgT.o
 pSgT: $(PSGT_OBJS)
-	g++ $(PSGT_OBJS) -o pSgT
+	$(CXX) $(PSGT_OBJS) -o pSgT
 
 
 PTGNT_OBJS = \
@@ -300,7 +300,7 @@ PTGNT_OBJS = \
 	utils.o \
 	pTgNt.o
 pTgNt: $(PTGNT_OBJS)
-	g++ $(PTGNT_OBJS) -o pTgNt
+	$(CXX) $(PTGNT_OBJS) -o pTgNt
 
 PSFGT_OBJS = \
 	ECArgs.o \
@@ -314,7 +314,7 @@ PSFGT_OBJS = \
 	utils.o \
 	pSfgT.o
 pSfgT: $(PSFGT_OBJS)
-	g++ $(PSFGT_OBJS) -o pSfgT
+	$(CXX) $(PSFGT_OBJS) -o pSfgT
 
 PUGT_OBJS = \
 	ECArgs.o \
@@ -329,7 +329,7 @@ PUGT_OBJS = \
 	utils.o \
 	pUgT.o
 pUgT: $(PUGT_OBJS)
-	g++ $(PUGT_OBJS) -o pUgT
+	$(CXX) $(PUGT_OBJS) -o pUgT
 
 GETPROBS_OBJS = \
 	ClassRule.o \
@@ -352,7 +352,7 @@ GETPROBS_OBJS = \
 	trainRsUtils.o \
 	getProbs.o
 getProbs:$(GETPROBS_OBJS)
-	g++ $(CFLAGS) $(GETPROBS_OBJS) -o getProbs 
+	$(CXX) $(CFLAGS) $(GETPROBS_OBJS) -o getProbs 
 
 all: rCounts selFeats iScale trainRs pSgT pTgNt pUgT kn3Counts pSfgT 
 

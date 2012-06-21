@@ -8,7 +8,7 @@ clean:
 # this rule automatically makes our dependency files.
 # run "make Makefile.dep" if you add any files or change dependencies.
 Makefile.dep:
-	gcc -MM *.C > Makefile.dep
+	$(CC) -MM *.C > Makefile.dep
 
 # include the automatically generated dependency files
 -include Makefile.dep
@@ -16,7 +16,7 @@ Makefile.dep:
 CFLAGS=-Wall -O3 -fPIC
 # CFLAGS=-g
 .C.o:
-	g++ $(CFLAGS) -c $<
+	$(CXX) $(CFLAGS) -c $<
 
 PARSEANDEVAL_OBJS = \
 	Bchart.o \
@@ -58,7 +58,7 @@ PARSEANDEVAL_OBJS = \
 	parseAndEval.o 
 
 parseAndEval: $(PARSEANDEVAL_OBJS)
-	g++ $(CFLAGS) ${PARSEANDEVAL_OBJS} -o parseAndEval  -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
+	$(CXX) $(CFLAGS) ${PARSEANDEVAL_OBJS} -o parseAndEval  -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
 
 
 PARSE_OBJS = \
@@ -100,7 +100,7 @@ PARSE_OBJS = \
 	parseIt.o 
 
 parseIt: $(PARSE_OBJS)
-	g++ $(CFLAGS) $(PARSE_OBJS) -o parseIt   -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
+	$(CXX) $(CFLAGS) $(PARSE_OBJS) -o parseIt   -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
 
 
 OPARSE_OBJS = \
@@ -141,7 +141,7 @@ OPARSE_OBJS = \
 	oparseIt.o 
 
 oparseIt: $(OPARSE_OBJS)
-	g++ $(CFLAGS) $(PARSE_OBJS) -o oparseIt 
+	$(CXX) $(CFLAGS) $(PARSE_OBJS) -o oparseIt 
 
 
 FPT_OBJS = \
@@ -151,7 +151,7 @@ FPT_OBJS = \
 	finPTest.o
 
 finPTest: $(FPT_OBJS)
-	g++ $(CFLAGS) $(FPT_OBJS) -o finPTest
+	$(CXX) $(CFLAGS) $(FPT_OBJS) -o finPTest
 
 
 
@@ -194,5 +194,5 @@ EVALTREE_OBJS = \
 	evalTree.o 
 
 evalTree: $(EVALTREE_OBJS)
-	g++ $(CFLAGS) ${EVALTREE_OBJS} -o evalTree  -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
+	$(CXX) $(CFLAGS) ${EVALTREE_OBJS} -o evalTree  -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
 

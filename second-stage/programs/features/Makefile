@@ -7,25 +7,25 @@ FOPENMP=-fopenmp
 top: $(TARGETS)
 
 extract-nmfeatures.o: extract-nmfeatures.cc
-	g++ -c $(CXXFLAGS) $(FOPENMP) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(FOPENMP) $< -o $@
 
 extract-nmfeatures: extract-nmfeatures.o heads.o read-tree.o sym.o
 	$(CXX) $(LDFLAGS) $(FOPENMP) $^ -o $@
 
 best-nmparses.o: best-nmparses.cc
-	g++ -c $(CXXFLAGS) $(FOPENMP) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(FOPENMP) $< -o $@
 
 best-nmparses: best-nmparses.o heads.o read-tree.o sym.o
 	$(CXX) $(LDFLAGS) $(FOPENMP) $^ -o $@
 
 extract-spmfeatures.o: extract-spmfeatures.cc
-	g++ -c $(CXXFLAGS) $(FOPENMP) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(FOPENMP) $< -o $@
 
 extract-spmfeatures: extract-spmfeatures.o heads.o read-tree.o sym.o
 	$(CXX) $(LDFLAGS) $(FOPENMP) $^ -o $@
 
 best-spmparses.o: best-spmparses.cc
-	g++ -c $(CXXFLAGS) $(FOPENMP) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(FOPENMP) $< -o $@
 
 best-spmparses: best-spmparses.o heads.o read-tree.o sym.o
 	$(CXX) $(LDFLAGS) $(FOPENMP) $^ -o $@
