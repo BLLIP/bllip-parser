@@ -45,6 +45,8 @@ const char usage[] =
 #include <cassert>
 #include <cstdlib>
 #include <vector>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "popen.h"
 #include "sp-data.h"
