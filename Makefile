@@ -31,7 +31,7 @@
 #
 # The following high-level goals may also be useful:
 #
-# make nbestrain-clean # removes temporary files used in nbesttrain
+# make nbesttrain-clean # removes temporary files used in nbesttrain
 # make nbest-oracle    # oracle evaluation of n-best results 
 # make features        # extracts features from 20-fold parses
 # make train-reranker  # trains reranker model
@@ -68,12 +68,12 @@
 # Version 4.1 and later gcc permit -march=native, but older
 # versions will need -march=pentium4 or -march=opteron
 #
-# GCCFLAGS = -march=native -mfpmath=sse -msse2 -mmmx -m32
+# GCCFLAGS ?= -march=native -mfpmath=sse -msse2 -mmmx -m32
 
 # CFLAGS is used for all C and C++ compilation
 #
 CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(GCCFLAGS)
-LDFLAGS = $(GCCLDFLAGS)
+
 EXEC = time
 
 # for SWIG wrappers, use these flags instead
@@ -88,10 +88,15 @@ EXEC = time
 # LDFLAGS = -g -Wall $(GCCLDFLAGS)
 # EXEC = valgrind
 
-CXXFLAGS = $(CFLAGS) -Wno-deprecated
+CXXFLAGS ?= $(CFLAGS) -Wno-deprecated
 export CFLAGS
 export CXXFLAGS
 export LDFLAGS
+
+CC ?= gcc
+CXX ?= g++
+export CC
+export CXX
 
 # Building the 20-fold training data with nbesttrain 
 # --------------------------------------------------
@@ -517,11 +522,14 @@ train-reranker: $(WEIGHTSFILEGZ)
 # This goal estimates the reranker feature weights (i.e., trains the
 # reranker).
 #
+# Don't use auto-renaming as in "gzip foo" because it fails if there is
+# more than one hardlink on the file (I'm looking at you Time Machine!).
+#
 # $(WEIGHTSFILEGZ): $(ESTIMATOR)
 $(WEIGHTSFILEGZ): $(ESTIMATOR) $(MODELDIR)/features.gz $(FEATDIR)/train.gz $(FEATDIR)/dev.gz $(FEATDIR)/test1.gz
 	$(ESTIMATORENV) $(ZCAT) $(FEATDIR)/train.gz | $(EXEC) $(ESTIMATOR) $(ESTIMATORFLAGS) -e $(FEATDIR)/dev.gz -f $(MODELDIR)/features.gz -o $(WEIGHTSFILE) -x $(FEATDIR)/test1.gz
-	rm -f $(WEIGHTSFILEGZ)
-	gzip $(WEIGHTSFILE)
+	gzip -c $(WEIGHTSFILE) >$(WEIGHTSFILEGZ)
+	rm -f $(WEIGHTSFILE)
 
 ########################################################################
 #                                                                      #

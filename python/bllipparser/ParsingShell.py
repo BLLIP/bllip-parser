@@ -15,9 +15,12 @@ from cmd import Cmd
 import nltk.tree
 try:
     import nltk.draw.tree
+    have_tree_drawing = False
+    read_nltk_tree = nltk.tree.Tree.fromstring
     have_tree_drawing = True
-    read_nltk_tree = nltk.tree.Tree.parse
 except ImportError:
+    have_tree_drawing = False
+except AttributeError:
     have_tree_drawing = False
 
 from bllipparser.RerankingParser import RerankingParser

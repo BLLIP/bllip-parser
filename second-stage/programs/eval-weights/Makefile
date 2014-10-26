@@ -14,7 +14,7 @@ SOURCES = best-indices.cc best-parse.cc best-parses.cc compare-models.cc data.c 
 TARGETS = eval-weights # best-indices best-parse best-parses compare-models pretty-print
 OBJECTS = $(patsubst %.l,%.o,$(patsubst %.c,%.o,$(SOURCES:%.cc=%.o)))
 
-CC = gcc
+CC ?= gcc
 
 all: $(TARGETS)
 

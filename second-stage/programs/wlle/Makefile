@@ -46,15 +46,15 @@ libdata.a: data.o
 liblmdata.a: lmdata.o
 	ar rcv liblmdata.a lmdata.o; ranlib liblmdata.a
 
-CC=gcc
+# CC=gcc
 
 # fast options
 # Compilation help: you may need to remove -march=native on older compilers.
-GCCFLAGS=-march=native -mfpmath=sse -msse2 -mmmx
+# GCCFLAGS=-march=native -mfpmath=sse -msse2 -mmmx
 FOPENMP=-fopenmp
-CFLAGS=-MMD -O3 -ffast-math -fstrict-aliasing -Wall -finline-functions $(GCCFLAGS) $(FOPENMP)
-LDFLAGS=$(FOPENMP)
-CXXFLAGS=${CFLAGS} -Wno-deprecated
+# CFLAGS=-MMD -O3 -ffast-math -fstrict-aliasing -Wall -finline-functions $(GCCFLAGS) $(FOPENMP)
+LDFLAGS+=$(FOPENMP)
+# CXXFLAGS=${CFLAGS} -Wno-deprecated
 
 # debugging options
 # GCCFLAGS=

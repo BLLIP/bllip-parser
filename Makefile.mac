@@ -1,0 +1,68 @@
+# To use these defaults set the MAKEFILES environment variable when calling make.
+# export MAKEFILES=`pwd`/Makefile.mac
+
+uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+
+# For Mavericks (and Mountain Lion) I set up gcc using macports:
+# sudo port install gcc47
+# sudo port select --set gcc mp-gcc47
+# sudo port install boost liblbfgs
+
+# Using MacPorts means that we have to override the default include and library locations.
+LD_INCLUDE_PATH=/opt/local/include
+LD_LIBRARY_PATH=/opt/local/lib
+
+export LD_INCLUDE_PATH
+export LD_LIBRARY_PATH
+
+# The SParseval makefile uses a -lm dependency (a bad idea imho) which fails because there
+# is no libm.a to be used.  This trick works by mapping that to the system's libm.dylib.
+# .LIBPATTERNS+=lib%.dylib
+# export .LIBPATTERNS
+
+# On Mac OS X using -march=native doesn't seem to work (a compilation error will occur).
+# Turns out there is a problem with AVX instructions on OSX for gcc after 4.2.
+# http://stackoverflow.com/questions/12016281/g-no-such-instruction-with-avx
+# http://mac-os-forge.2317878.n4.nabble.com/gcc-as-AVX-binutils-and-MacOS-X-10-7-td144472.html
+# So here's what works for me (with or without the -mfpmath=sse - the default is 387):
+
+GCCFLAGS = -m64 -march=x86-64 -mfpmath=sse -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mssse3 -I${LD_INCLUDE_PATH}
+
+# Must use export because otherwise second-stage/programs/wlle/Makefile doesn't get the message.
+export GCCFLAGS
+
+# CC = condor_compile gcc
+CC = gcc
+export CC
+
+# CXX = condor_compile g++
+CXX = g++
+export CXX
+
+# fast options
+# Compilation help: you may need to remove -march=native on older compilers.
+# GCCFLAGS=-march=native -mfpmath=sse -msse2 -mmmx
+FOPENMP=-fopenmp
+# CFLAGS=-MMD -O3 -ffast-math -fstrict-aliasing -Wall -finline-functions $(GCCFLAGS) $(FOPENMP)
+# LDFLAGS=$(FOPENMP) -L/opt/local/lib
+
+# debugging options
+# GCCFLAGS=
+# FOPENMP=
+# CFLAGS=-MMD -O0 -g $(GCCFLAGS) $(FOPENMP)
+# LDFLAGS=-g $(FOPENMP)
+# CXXFLAGS=${CFLAGS} -Wno-deprecated
+
+# CFLAGS is used for all C and C++ compilation
+#
+CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(GCCFLAGS)
+export CFLAGS
+
+CXXFLAGS=${CFLAGS} -Wno-deprecated
+export CXXFLAGS
+
+LDFLAGS = -L${LD_LIBRARY_PATH} $(GCCLDFLAGS)
+export LDFLAGS
+
+# This is a handy place to put a local setting without changing Makefile.
+# PENNWSJTREEBANK = /usr/local/data/Penn3/parsed/mrg/wsj
