@@ -27,5 +27,6 @@ Contributors
 - `Ben Swanson <https://github.com/chonger>`__
 - Jenine Turner-Trauring
 - `Jim White <https://github.com/jimwhite>`__
-
+- `Patrick Claus <http://www.h-its.org/en/research/nlp/>`__
+  
 (and many others with helpful bug reports and questions!)
