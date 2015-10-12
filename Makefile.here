@@ -1,0 +1,6 @@
+# export MAKEFILES=/projects/SSTP/MYBLLIP/bllip-parser/Makefile.here
+
+PENNWSJTREEBANK=/corpora/LDC/LDC99T42/RAW/parsed/mrg/wsj
+
+USE_OLD_NONLBFGS_ESTIMATOR=1
+

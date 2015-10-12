@@ -31,7 +31,7 @@
 #
 # The following high-level goals may also be useful:
 #
-# make nbestrain-clean # removes temporary files used in nbesttrain
+# make nbesttrain-clean # removes temporary files used in nbesttrain
 # make nbest-oracle    # oracle evaluation of n-best results 
 # make features        # extracts features from 20-fold parses
 # make train-reranker  # trains reranker model
@@ -68,12 +68,12 @@
 # Version 4.1 and later gcc permit -march=native, but older
 # versions will need -march=pentium4 or -march=opteron
 #
-# GCCFLAGS = -march=native -mfpmath=sse -msse2 -mmmx -m32
+# GCCFLAGS ?= -march=native -mfpmath=sse -msse2 -mmmx -m32
 
 # CFLAGS is used for all C and C++ compilation
 #
 CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(GCCFLAGS)
-LDFLAGS = $(GCCLDFLAGS)
+
 EXEC = time
 
 # for SWIG wrappers, use these flags instead
@@ -88,10 +88,15 @@ EXEC = time
 # LDFLAGS = -g -Wall $(GCCLDFLAGS)
 # EXEC = valgrind
 
-CXXFLAGS = $(CFLAGS) -Wno-deprecated
+CXXFLAGS ?= $(CFLAGS) -Wno-deprecated
 export CFLAGS
 export CXXFLAGS
 export LDFLAGS
+
+CC ?= gcc
+CXX ?= g++
+export CC
+export CXX
 
 # Building the 20-fold training data with nbesttrain 
 # --------------------------------------------------
@@ -101,7 +106,7 @@ export LDFLAGS
 #
 # PENNWSJTREEBANK must be set to the base directory of the Penn WSJ Treebank
 #
-PENNWSJTREEBANK=/usr/local/data/Penn3/parsed/mrg/wsj/
+PENNWSJTREEBANK ?= /usr/local/data/Penn3/parsed/mrg/wsj/
 
 # NPARSES is the number of alternative parses to consider for each sentence
 #
@@ -190,6 +195,9 @@ FEATURESNICKNAME=sp
 # of these variable values can be found in the train-eval-reranker.sh
 # script.
 #
+
+ifndef USE_OLD_NONLBFGS_ESTIMATOR
+# Newer estimator that depends on liblbfgs:
 ESTIMATOR=second-stage/programs/wlle/cvlm-lbfgs
 
 # ESTIMATORFLAGS are flags given to the estimator
@@ -199,6 +207,22 @@ ESTIMATORFLAGS=-l 1 -c 10 -F 1 -n -1 -p 2
 # ESTIMATORNICKNAME is used to name the feature weights file
 #
 ESTIMATORNICKNAME=lbfgs-l1c10F1n1p2
+
+else
+# Older estimator that doesn't depend on liblbfgs:
+ESTIMATOR=second-stage/programs/wlle/cvlm-owlqn
+
+# ESTIMATORFLAGS are flags given to the estimator
+#
+# These flags are for cvlm-owlqn:
+ESTIMATORFLAGS=-l 1 -c 10 -F 1 -d 10 -n -1
+# The equivalent ESTIMATORFLAGS for cvlm:
+#   ESTIMATORFLAGS=-l 1 -c0 10 -Pyx_factor 1 -debug 10 -ns -1
+
+# ESTIMATORNICKNAME is used to name the feature weights file
+#
+ESTIMATORNICKNAME=cvlm-l1c10P1
+endif
 
 # ESTIMATORSTACKSIZE is the size (in KB) of the per-thread stacks
 # used during estimation
@@ -524,11 +548,14 @@ train-reranker: $(WEIGHTSFILEGZ)
 # This goal estimates the reranker feature weights (i.e., trains the
 # reranker).
 #
+# Don't use auto-renaming as in "gzip foo" because it fails if there is
+# more than one hardlink on the file (I'm looking at you Time Machine!).
+#
 # $(WEIGHTSFILEGZ): $(ESTIMATOR)
 $(WEIGHTSFILEGZ): $(ESTIMATOR) $(MODELDIR)/features.gz $(FEATDIR)/train.gz $(FEATDIR)/dev.gz $(FEATDIR)/test1.gz
 	$(ESTIMATORENV) $(ZCAT) $(FEATDIR)/train.gz | $(EXEC) $(ESTIMATOR) $(ESTIMATORFLAGS) -e $(FEATDIR)/dev.gz -f $(MODELDIR)/features.gz -o $(WEIGHTSFILE) -x $(FEATDIR)/test1.gz
-	rm -f $(WEIGHTSFILEGZ)
-	gzip $(WEIGHTSFILE)
+	gzip -c $(WEIGHTSFILE) >$(WEIGHTSFILEGZ)
+	rm -f $(WEIGHTSFILE)
 
 ########################################################################
 #                                                                      #
