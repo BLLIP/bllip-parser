@@ -19,6 +19,7 @@ before_script:
   - bash -c "[ $BLLIPINTERFACE != "python" ] || swig -version"
 script:
   - bash -c "[ $BLLIPINTERFACE != "cmd" ]    || make world"
+  - bash -c "[ $BLLIPINTERFACE != "cmd" ]    || regression-test -fFtT"
   - bash -c "[ $BLLIPINTERFACE != "python" ] || tox"
 after_success:
   - bash -c "[ $BLLIPINTERFACE != "python" ] || coveralls"
