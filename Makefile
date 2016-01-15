@@ -80,8 +80,9 @@
 
 # CFLAGS is used for all C and C++ compilation
 #
-CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(GCCFLAGS)
-LDFLAGS = $(GCCLDFLAGS)
+FOPENMP = -fopenmp
+CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(FOPENMP) $(GCCFLAGS)
+LDFLAGS = $(GCCLDFLAGS) $(FOPENMP)
 EXEC = time
 
 # for SWIG wrappers, use these flags instead
@@ -96,10 +97,11 @@ EXEC = time
 # LDFLAGS = -g -Wall $(GCCLDFLAGS)
 # EXEC = valgrind
 
-CXXFLAGS = $(CFLAGS) -Wno-deprecated
+CXXFLAGS = $(CFLAGS) -Wno-deprecated -std=c++11
 export CFLAGS
 export CXXFLAGS
 export LDFLAGS
+export FOPENMP
 
 # Building the 20-fold training data with nbesttrain 
 # --------------------------------------------------

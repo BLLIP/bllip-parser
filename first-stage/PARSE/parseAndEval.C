@@ -207,7 +207,7 @@ mainLoop(void* arg)
 	  if(numVersions > 20000) break;
 	}
 
-      ParseStats  locPst[Bchart::Nth];
+      ParseStats* locPst = new ParseStats[Bchart::Nth];
       ParseStats bestPs;
       for(i = 0 ; i <printS.numDiff ; i++)
 	{
@@ -309,6 +309,7 @@ mainLoop(void* arg)
 	}
 
       delete chart;
+      delete [] locPst;
     }
   return 0;
 }
