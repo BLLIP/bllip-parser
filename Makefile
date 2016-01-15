@@ -329,7 +329,7 @@ train-clean: nbesttrain-clean
 #
 .PHONY: real-clean
 real-clean: clean train-clean swig-clean
-	rm -rf build dist SParseval
+	rm -rf build dist SParseval regression-test-*
 	$(MAKE) -C $(NBESTPARSERBASEDIR)/TRAIN real-clean
 	$(MAKE) -C $(NBESTPARSERBASEDIR)/PARSE real-clean
 	$(MAKE) -C second-stage real-clean
