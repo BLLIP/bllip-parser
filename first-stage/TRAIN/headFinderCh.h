@@ -15,7 +15,7 @@
  */
 
 #ifndef HEADFINDCH_H
-#define HEADFINDCN_H
+#define HEADFINDCH_H
 
 #include "ECString.h"
 #include "InputTree.h"
@@ -24,4 +24,4 @@ void readHeadInfoCh(ECString& path);
 
 int headPosFromTreeCh(InputTree* tree);
 
-#endif				/* ! HEADFIND_H */
+#endif				/* ! HEADFINDCH_H */
