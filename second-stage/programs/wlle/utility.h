@@ -51,7 +51,11 @@
 #include <cstdio>
 #include <ext/hash_map>
 #include <ext/hash_set>
+#ifdef __clang__
+#include <forward_list>
+#else
 #include <ext/slist>
+#endif
 #include <iostream>
 #include <iterator>
 #include <list>
@@ -69,6 +73,12 @@
 #endif
 
 namespace ext = EXT_NAMESPACE;
+
+#ifdef __clang__
+namespace EXT_NAMESPACE {
+	template <class T> using slist = std::forward_list<T>;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //

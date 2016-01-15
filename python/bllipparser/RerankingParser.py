@@ -330,7 +330,7 @@ class ScoredParse:
         self.reranker_score = reranker_score
         self.reranker_rank = reranker_rank
     def __str__(self):
-        return "%s %s %s" % \
+        return "%.12f %.12f %s" % \
             (self.parser_score, self.reranker_score, self.ptb_parse)
     def __repr__(self):
         return "%s(%r, parser_score=%r, reranker_score=%r)" % \
@@ -445,14 +445,19 @@ class NBestList(object):
         likely)."""
         self.parses.sort(key=lambda parse: -parse.parser_score)
     def get_parser_best(self):
-        """Get the best parse in this n-best list according to the parser."""
+        """Get the best parse in this n-best list according to the
+        parser. If there are no parses in this list, returns None."""
         if len(self.parses):
             return min(self, key=lambda parse: parse.parser_rank)
         else:
             return None
     def get_reranker_best(self):
-        """Get the best parse in this n-best list according to the reranker."""
-        return min(self, key=lambda parse: parse.reranker_rank)
+        """Get the best parse in this n-best list according to the
+        reranker. If there are no parses in this list, returns None."""
+        if len(self.parses):
+            return min(self, key=lambda parse: parse.reranker_rank)
+        else:
+            return None
     def tokens(self):
         """Get the tokens of this sentence as a sequence of strings."""
         return self._sentrep.tokens()

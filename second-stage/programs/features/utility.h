@@ -52,7 +52,11 @@
 #include <cstdio>
 #include <ext/hash_map>
 #include <ext/hash_set>
+#ifdef __clang__
+#include <forward_list>
+#else
 #include <ext/slist>
+#endif
 #include <iostream>
 #include <iterator>
 #include <list>
@@ -70,6 +74,12 @@
 #endif
 
 namespace ext = EXT_NAMESPACE;
+
+#ifdef __clang__
+namespace EXT_NAMESPACE {
+	template <class T> using slist = std::forward_list<T>;
+}
+#endif
 
 // define some useful macros
 
@@ -547,10 +557,49 @@ inline std::ostream& operator<< (std::ostream& os, const std::auto_ptr<T>& sp)
   return os << sp.get();
 }
 
+// Vectors
+//
+template <class T>
+std::ostream& operator<< (std::ostream& os, const std::vector<T>& xs)
+{
+  os << '(';
+  for (typename std::vector<T>::const_iterator xi = xs.begin(); xi != xs.end(); ++xi) {
+    if (xi != xs.begin())
+      os << ' ';
+    os << *xi;
+  }
+  return os << ')';
+}
+
+template <class T>
+std::istream& operator>> (std::istream& is, std::vector<T>& xs)
+{
+  char c;                          // This code avoids unnecessary copy
+  if (is >> c) {                   // read the initial '('
+    if (c == '(') {
+      xs.clear();                  // clear the list
+      do {
+	xs.push_back(T());         // create a new elt in list
+	is >> xs.back();           // read element
+      }
+      while (is.good());           // read as long as possible
+      xs.pop_back();               // last read failed; pop last elt
+      is.clear(is.rdstate() & ~std::ios::failbit);  // clear failbit
+      if (is >> c && c == ')')     // read terminating ')'
+	return is;                 // successful return
+      else 
+	is.setstate(std::ios::badbit); // something went wrong, set badbit
+    }
+    else                           // c is not '('
+      is.putback(c);               //  put c back into input
+  }
+  is.setstate(std::ios::failbit);  // read failed, set failbit
+  return is;
+}
 
 // Pairs
 //
-template <class T1, class T2> 
+template <class T1, class T2>
 std::ostream& operator<< (std::ostream& os, const std::pair<T1,T2>& p)
 {
   return os << '(' << p.first << ' ' << p.second << ')';
@@ -564,7 +613,7 @@ std::istream& operator>> (std::istream& is, std::pair<T1,T2>& p)
     if (c == '(') {
       if (is >> p.first >> p.second >> c && c == ')')
 	return is;
-      else 
+      else
 	is.setstate(std::ios::badbit);
     }
     else
@@ -590,46 +639,6 @@ std::ostream& operator<< (std::ostream& os, const std::list<T>& xs)
 
 template <class T>
 std::istream& operator>> (std::istream& is, std::list<T>& xs)
-{
-  char c;                          // This code avoids unnecessary copy
-  if (is >> c) {                   // read the initial '('
-    if (c == '(') {
-      xs.clear();                  // clear the list
-      do {
-	xs.push_back(T());         // create a new elt in list
-	is >> xs.back();           // read element
-      }
-      while (is.good());           // read as long as possible
-      xs.pop_back();               // last read failed; pop last elt
-      is.clear(is.rdstate() & ~std::ios::failbit);  // clear failbit
-      if (is >> c && c == ')')     // read terminating ')'
-	return is;                 // successful return
-      else 
-	is.setstate(std::ios::badbit); // something went wrong, set badbit
-    }
-    else                           // c is not '('
-      is.putback(c);               //  put c back into input
-  }
-  is.setstate(std::ios::failbit);  // read failed, set failbit
-  return is;
-}
-
-// Vectors
-//
-template <class T>
-std::ostream& operator<< (std::ostream& os, const std::vector<T>& xs)
-{
-  os << '(';
-  for (typename std::vector<T>::const_iterator xi = xs.begin(); xi != xs.end(); ++xi) {
-    if (xi != xs.begin())
-      os << ' ';
-    os << *xi;
-  }
-  return os << ')';
-}
-
-template <class T>
-std::istream& operator>> (std::istream& is, std::vector<T>& xs)
 {
   char c;                          // This code avoids unnecessary copy
   if (is >> c) {                   // read the initial '('

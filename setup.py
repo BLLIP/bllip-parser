@@ -136,7 +136,7 @@ reranker_module = Extension('bllipparser._JohnsonReranker',
                                                 '-DSWIGFIX'])
 
 setup(name='bllipparser',
-      version='2015.10.15',
+      version='2015.12.3',
       description='Python bindings for the BLLIP natural language parser',
       long_description=open('README-python.rst').read(),
       author='Eugene Charniak, Mark Johnson, David McClosky, many others',
@@ -161,4 +161,7 @@ setup(name='bllipparser',
           'StanfordDependencies': ['PyStanfordDependencies'],
           'visualization': ['nltk', 'asciitree'],
       },
+      keywords='parsing, syntax, linguistics, language, artificial '
+               'intelligence, machine learning, NLP, natural '
+               'language, natural language processing, parse, tree',
       cmdclass={'test': Test})

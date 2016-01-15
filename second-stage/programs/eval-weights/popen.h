@@ -21,6 +21,10 @@
 #define POPEN_H
 
 #include <cstdio>
+#include <cstring>
+#ifdef __clang__
+#include "fdstream.hpp"
+#else
 #include <ext/stdio_filebuf.h>
 #include <iostream>
 #include <string>
@@ -30,10 +34,17 @@
 //
 struct ipstream_helper {
   FILE* stdio_fp;
+#ifdef __clang__
+  boost::fdinbuf stdio_fb;
+
+  ipstream_helper(const char* command)
+    : stdio_fp(popen(command, "r")), stdio_fb(fileno(stdio_fp)) { }
+#else
   __gnu_cxx::stdio_filebuf<char> stdio_fb;
 
   ipstream_helper(const char* command) 
     : stdio_fp(popen(command, "r")), stdio_fb(stdio_fp, std::ios_base::in) { }
+#endif
 
   ~ipstream_helper() { pclose(stdio_fp); }  // close the popen'd stream
 }; // ipstream_helper{}

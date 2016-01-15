@@ -27,9 +27,9 @@
 #include <unistd.h>
 #include <vector>
 
+#include "utility.h"
 #include "greedy.h"
 #include "lmdata.h"
-#include "utility.h"
 
 const char usage[] =
 "gavper version of 1st August 2008\n"

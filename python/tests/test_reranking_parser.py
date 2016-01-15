@@ -1,24 +1,41 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 from __future__ import print_function
-# TODO: untested:
-#   NBestList.sort_by_reranker_scores, sort_by_parser_scores,
-#       get_parser_best, get_reranker_best, tokens, rerank,
-#       as_reranker_input
-#   Sentence.sentences_from_file, Tree.trees_from_file
-#   model downloading
-#   RerankingParser.from_unified_model_dir, parse_tagged with
-#       invalid tags, set_parser_options
 
 import unittest
 from bllipparser import Sentence, tokenize, RerankingParser, Tree
-from bllipparser.RerankingParser import NBestList
+from bllipparser.RerankingParser import (NBestList, ScoredParse,
+                                         get_unified_model_parameters)
+
+# throughout: reprs are called to ensure they don't crash, but we don't
+# rely on their value
 
 class MiscToolTests(unittest.TestCase):
     def test_sentence(self):
         s = Sentence('Hi there.')
         self.assertEqual(s.tokens(), ['Hi', 'there', '.'])
         self.assertEqual(len(s), 3)
+        repr(s)
 
-    def test_sentences(self):
+        s2 = Sentence(s)
+        self.assertEqual(s2.tokens(), ['Hi', 'there', '.'])
+        self.assertEqual(len(s2), 3)
+
+        s3 = Sentence(s.sentrep)
+        self.assertEqual(s3.tokens(), ['Hi', 'there', '.'])
+        self.assertEqual(len(s3), 3)
+
+    def test_sentences_from_string(self):
         sentences = Sentence.sentences_from_string('<s> Test </s>')
         self.assertEqual(len(sentences), 1)
         self.assertEqual(sentences[0].tokens(), ['Test'])
@@ -35,6 +52,15 @@ class MiscToolTests(unittest.TestCase):
         self.assertEqual(sentences2[2].tokens(), ['The', 'last', 'sentence'])
         self.assertEqual(sentences2[3].tokens(), ['Just', 'kidding', '.'])
 
+    def test_sentences_from_file(self):
+        sentences = Sentence.sentences_from_file('sample-text/fails.sgml')
+        self.assertEqual(len(sentences), 4)
+        self.assertEqual(sentences[0].tokens(), 'A -RSB- -LSB- B -RSB- -LSB- C -RSB- -LSB- D -RSB- -LSB- A -RSB- -LSB- B -RSB- -LSB- C -RSB- -LSB- D -RSB- -LSB- E -RSB- -LSB- G -RSB- -LSB- F -RSB- -LSB- G -RSB- -LSB- H -RSB- -LSB- I -RSB- -LSB- J -RSB- -LSB- K -RSB- -LSB- L -RSB- -LSB- M -RSB- -LSB- N -RSB- -LSB- N -RSB- .'.split())
+        self.assertEqual(sentences[1].tokens(), '# ! ? : -'.split())
+        self.assertEqual(sentences[2].tokens(),
+                         '744 644 413 313 213 231 131 544 444 344 543 443 613 513 921 821 721 621 521 001'.split())
+        self.assertEqual(sentences[3].tokens(), list(map(str, range(1, 501))))
+
     def test_tokenizer(self):
         tokens1 = tokenize("Tokenize this sentence, please.")
         self.assertEqual(tokens1, ['Tokenize', 'this', 'sentence', ',',
@@ -49,10 +75,18 @@ class MiscToolTests(unittest.TestCase):
         self.assertEqual(tokens3, ['You', 'can', "n't", 'do', 'that',
                                    '-LRB-', 'or', 'can', 'you', '?',
                                    '-RRB-', '.', '-LSB-3', '-RSB-'])
+    def test_unified_model_params(self):
+        self.assertRaises(IOError, get_unified_model_parameters,
+                          '/path/to/nowhere/hopefully')
+        self.assertRaises(IOError, RerankingParser.from_unified_model_dir,
+                          '/path/to/nowhere/hopefully')
+        # rest is hard to test given that we can only load one model...
 
 class RerankingParserTests(unittest.TestCase):
     def test_1_loading_errors(self):
+        # parser loading errors
         rrp = RerankingParser()
+        repr(rrp)
         self.assertRaises(ValueError, rrp.load_parser_model,
                           '/path/to/nowhere/hopefully')
         self.assertRaises(ValueError, rrp.check_models_loaded_or_error, False)
@@ -67,6 +101,16 @@ class RerankingParserTests(unittest.TestCase):
         self.assertRaises(ValueError, rrp.check_models_loaded_or_error, True)
         self.assertRaises(ValueError, rrp.check_models_loaded_or_error, True)
 
+        # tree function loading errors
+        tree = Tree('(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) '
+                    '(NN sentence))) (. .)))')
+        self.assertRaises(ValueError, tree.evaluate, tree)
+        self.assertRaises(ValueError, tree.log_prob)
+        self.assertRaises(ValueError, tree.head)
+
+        s = Sentence('(Sentence for when the parser is not loaded)')
+        self.assertRaises(ValueError, s.independent_tags)
+
     def test_2_basics(self):
         rrp = RerankingParser()
         # make sure we're starting fresh
@@ -76,12 +120,14 @@ class RerankingParserTests(unittest.TestCase):
                           'auto')
 
         rrp.load_parser_model('first-stage/DATA/EN')
+        repr(rrp)
         self.assertEqual(rrp.check_models_loaded_or_error(False), False)
         self.assertRaises(ValueError, rrp.check_models_loaded_or_error, True)
 
         rrp.load_reranker_model('second-stage/models/ec50spfinal/features.gz',
                                 'second-stage/models/ec50spfinal/cvlm-'
                                 'l1c10P1-weights.gz')
+        repr(rrp)
         self.assertEqual(rrp.check_models_loaded_or_error(False), False)
         self.assertEqual(rrp.check_models_loaded_or_error(True), True)
         self.assertEqual(rrp.check_models_loaded_or_error('auto'), True)
@@ -122,12 +168,20 @@ class RerankingParserTests(unittest.TestCase):
 (S1 (S (ADVP (DT This)) (VP (AUX is) (S (NP (DT a) (NN sentence)))) (. .)))
 -26.7808410125 -68.4818143615
 (S1 (SBARQ (WHNP (DT This)) (SQ (VP (AUX is) (S (NP (DT a) (NN sentence))))) (. .)))'''.strip())
+        self.failUnless(isinstance(nbest_list[0], ScoredParse))
+        self.assertEqual(str(nbest_list[0]), '-30.398166970085 -8.886558456079 '
+                         '(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NN '
+                         'sentence))) (. .)))')
+        repr(nbest_list)
+        repr(nbest_list[0])
+        self.failUnless(isinstance(nbest_list[0].ptb_parse, Tree))
         self.assertEqual(str(nbest_list[0].ptb_parse),
                          '(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NN '
                          'sentence))) (. .)))')
         self.assertAlmostEqual(nbest_list[0].parser_score, -30.3981669701)
         self.assertAlmostEqual(nbest_list[0].reranker_score, -8.88655845608)
         self.assertEqual(len(nbest_list), 13)
+        self.assertEqual(len(list(iter(nbest_list))), 13)
         self.assertAlmostEqual(nbest_list[0].ptb_parse.log_prob(),
                                -30.3981669701)
         self.assertEqual(nbest_list[0].ptb_parse.log_prob(),
@@ -142,7 +196,8 @@ class RerankingParserTests(unittest.TestCase):
         nbest_list2 = rrp.parse(['This', 'is', 'a', 'pretokenized',
                                  'sentence', '.'])
         self.assertEqual(len(nbest_list2), 50)
-        self.assertNBestListStringsAlmostEqual(str(nbest_list2).strip(), '''
+
+        nbest_list2_reranker_str = '''
 50 x
 -13.9140458986 -49.4538516291
 (S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))
@@ -243,13 +298,120 @@ class RerankingParserTests(unittest.TestCase):
 -27.2836774072 -77.313649149
 (S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
 -28.0026072817 -76.0416349799
-(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))'''.strip())
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))'''.strip()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list2).strip(), nbest_list2_reranker_str)
+
+        nbest_list2.sort_by_parser_scores()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list2).strip(), '''50 x
+-13.914045898638 -49.453851629115
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))
+-16.021265892586 -54.332463969050
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (VBN pretokenized) (NN sentence))) (. .)))
+-17.511453069247 -58.375158739667
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NN pretokenized) (NN sentence))) (. .)))
+-17.688086466190 -58.718710293517
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (JJS pretokenized) (NN sentence))) (. .)))
+-19.420971141523 -59.165102572744
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
+-20.421946989137 -59.194499470145
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))
+-17.851075267698 -60.829453647853
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (JJR pretokenized) (NN sentence))) (. .)))
+-20.319249081103 -63.553184014836
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (JJ pretokenized) (NN sentence)))) (. .)))
+-18.963633170595 -65.490371089474
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))
+-21.520936522492 -65.585088524066
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (ADJP (VBD pretokenized)) (NN sentence))) (. .)))
+-21.539690180195 -65.991111666347
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (VBN pretokenized) (NN sentence)))) (. .)))
+-19.388199724373 -66.494690252349
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))
+-22.252473549687 -66.969923383825
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NX (JJ pretokenized) (NN sentence)))) (. .)))
+-19.772764774577 -67.265353951546
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (VBD pretokenized) (NN sentence))) (. .)))
+-21.512397544985 -67.425519055141
+(S1 (S (NP (DT This)) (VP (AUX is) (DT a) (VP (VBN pretokenized) (NP (NN sentence)))) (. .)))
+-22.117781090411 -67.502115781364
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (ADJP (JJR pretokenized)) (NN sentence))) (. .)))
+-20.417086834072 -67.622929394020
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))
+-22.828246428437 -67.911680630137
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (JJ pretokenized) (NN sentence))) (. .)))
+-22.693192538556 -69.150316584631
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NX (VBN pretokenized) (NN sentence)))) (. .)))
+-21.070853164543 -70.368983429409
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (VBN pretokenized) (NN sentence))) (. .)))
+-23.243264351014 -71.033695450412
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (NN pretokenized) (NN sentence)))) (. .)))
+-23.458333309709 -71.366659290552
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (JJS pretokenized) (NN sentence)))) (. .)))
+-21.495419718321 -71.373302592284
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (VBN pretokenized) (NN sentence))) (. .)))
+-25.021268166466 -71.376943969501
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (ADJP (VBN pretokenized)) (NN sentence)))) (. .)))
+-22.328386638748 -71.400934086901
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (ADJP (JJS pretokenized)) (NN sentence))) (. .)))
+-23.406407828443 -71.751621123244
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (VBN pretokenized) (NN sentence))) (. .)))
+-26.417089891719 -71.910572186723
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (ADJP (JJ pretokenized)) (NN sentence)))) (. .)))
+-22.524306828021 -72.501541733955
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (VBN pretokenized) (NN sentence))) (. .)))
+-25.480316368580 -72.867320434050
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NX (ADJP (JJ pretokenized)) (NN sentence)))) (. .)))
+-25.655487125780 -73.325191600939
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) (NX (ADJP (VBN pretokenized)) (NN sentence)))) (. .)))
+-23.623787466208 -73.785121622894
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (JJR pretokenized) (NN sentence)))) (. .)))
+-22.561040341204 -74.411678200026
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (NN pretokenized) (NN sentence))) (. .)))
+-22.737673738147 -74.755229753876
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (JJS pretokenized) (NN sentence))) (. .)))
+-24.470558413480 -75.201622033104
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
+-25.471534261094 -75.231018930505
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))
+-22.985606894982 -75.415997362900
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (NN pretokenized) (NN sentence))) (. .)))
+-23.268756985256 -75.478491943299
+(S1 (S (NP (DT This)) (VP (AUX is) (DT a) (VP (VBD pretokenized) (NP (NN sentence)))) (. .)))
+-23.162240294725 -75.759548916751
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (JJS pretokenized) (NN sentence))) (. .)))
+-28.002607281660 -76.041634979928
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))
+-24.895124970057 -76.205941195978
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
+-25.896100814872 -76.235338093379
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))
+-24.014494004681 -76.544236504571
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (NN pretokenized) (NN sentence))) (. .)))
+-22.900662539655 -76.865973108212
+(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) (JJR pretokenized) (NN sentence))) (. .)))
+-24.191127404424 -76.887788058422
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (JJS pretokenized) (NN sentence))) (. .)))
+-27.283677407209 -77.313649149009
+(S1 (S (NP (DT This)) (VP (AUX is) (NP (NP (DT a)) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
+-25.924012079757 -77.334180337649
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (ADJP (VBN pretokenized)) (NN sentence))) (. .)))
+-26.924987927370 -77.363577235050
+(S1 (S (DT This) (VP (AUX is) (NP (DT a) (ADJP (JJ pretokenized)) (NN sentence))) (. .)))
+-27.112419337186 -77.704081363896
+(S1 (S (NP (DT This)) (VP (AUX is) (S (NP (DT a) (ADJP (VBD pretokenized)) (NN sentence)))) (. .)))
+-23.325229093433 -77.870292271087
+(S1 (S (NP (NN This)) (VP (AUX is) (NP (DT a) (JJR pretokenized) (NN sentence))) (. .)))
+-25.197399273862 -78.130429252394
+(S1 (S (ADVP (DT This)) (VP (AUX is) (NP (DT a) (JJ pretokenized) (NN sentence))) (. .)))'''.strip())
+
+        # restore original sorting
+        nbest_list2.sort_by_reranker_scores()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list2).strip(), nbest_list2_reranker_str)
 
         nbest_list3 = rrp.parse('Parser only!', rerank=False,
                                 sentence_id='parser_only')
         self.assertEqual(len(nbest_list3), 50)
-        self.assertNBestListStringsAlmostEqual(str(nbest_list3).strip(), '''
-50 parser_only
+        nbest_list3_str = '''50 parser_only
 -52.57783414
 (S1 (S (VP (VB Parser) (ADVP (RB only))) (. !)))
 -53.19573267
@@ -349,7 +511,13 @@ class RerankingParserTests(unittest.TestCase):
 -61.94221948
 (S1 (S (ADJP (RBR Parser) (JJ only)) (. !)))
 -61.97779994
-(S1 (FRAG (ADJP (JJ Parser) (JJ only)) (. !)))'''.strip())
+(S1 (FRAG (ADJP (JJ Parser) (JJ only)) (. !)))'''.strip()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list3).strip(), nbest_list3_str)
+
+        nbest_list3.sort_by_parser_scores()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list3).strip(), nbest_list3_str)
+        nbest_list3.sort_by_reranker_scores()
+        self.assertNBestListStringsAlmostEqual(str(nbest_list3).strip(), nbest_list3_str)
 
         self.assertEqual(str(nbest_list3.fuse(use_parser_scores=True)),
                          '(S1 (S (VP (VB Parser) (ADVP (RB only))) (. !)))')
@@ -374,6 +542,9 @@ class RerankingParserTests(unittest.TestCase):
                                   possible_tags={0: ['VB', 'JJ', 'NN']})
         self.assertEqual(str(trees4[0].ptb_parse),
                          '(S1 (NP (NN Time) (VBZ flies)))')
+
+        self.assertRaises(ValueError, rrp.parse_tagged, ['Time', 'flies'],
+                          possible_tags={0: 'BADTAG'})
 
         self.assertEqual(rrp.set_parser_options(nbest=10),
                          dict(case_insensitive=False, debug=0,
@@ -424,6 +595,7 @@ class RerankingParserTests(unittest.TestCase):
 (S1 (S (NP (NNP British)) (VP (VBD left) (NP (NP (NNS waffles)) (PP (IN on) (NP (NNPS Falklands))))) (. .)))
 -29.122754708 -95.4136351589
 (S1 (S (NP (NNS British)) (VP (VBD left) (NP (NP (NNS waffles)) (PP (IN on) (NP (NNP Falklands))))) (. .)))'''.strip())
+        self.assertEqual(nbest_list.get_parser_best(), nbest_list[6])
 
         nbest_list2 = rrp.parse_constrained('British left waffles on '
                                             'Falklands .'.split(), {})
@@ -488,12 +660,19 @@ class RerankingParserTests(unittest.TestCase):
                                             'Falklands .'.split(),
                                             constraints)
         self.assertEqual(str(nbest_list4), str(nbest_list5))
+        self.assertEqual(nbest_list4.get_parser_best(), nbest_list4[3])
+        self.assertEqual(nbest_list4.get_reranker_best(), nbest_list4[0])
+        self.assertAlmostEqual(nbest_list4.get_reranker_best().reranker_score,
+                               -30.0747237573)
 
         constraints = {(2, 4): ['NP'], (0, 1): ['VP']}
         nbest_list6 = rrp.parse_constrained('British left waffles on '
                                             'Falklands .'.split(),
                                             constraints)
         self.assertEqual(len(nbest_list6), 0)
+        self.assertNBestListStringsAlmostEqual(str(nbest_list6), '0 x')
+        self.assertEqual(nbest_list6.get_parser_best(), None)
+        self.assertEqual(nbest_list6.get_reranker_best(), None)
 
         constraints = {(1, 5): 'VP'}
         nbest_list7 = rrp.parse_constrained('British left waffles on '
@@ -642,9 +821,17 @@ class RerankingParserTests(unittest.TestCase):
                                                      threshold=0.75,
                                                      exponent=1.3)),
                          '(S1 (S (NP (NNS Economists)) (VP (AUX are) (VP (VBN divided) (PP (IN as) (PP (TO to) (SBAR (WHNP (WRB how) (JJ much) (NN manufacturing) (NN strength)) (S (NP (PRP they)) (VP (VBP expect) (S (VP (TO to) (VP (VB see) (PP (IN in) (NP (NNP September))) (NP (NP (NNS reports)) (IN on) (NP (JJ industrial) (NN production)) (CC and) (NP (NN capacity) (NN utilization)) (, ,) (ADVP (RB also)) (JJ due) (NN tomorrow)))))))))))) (. .)))')
-    def test_3_tree_eval(self):
-        # this is here and not in test_tree since it requires a parsing
-        # model to have been loaded for evaluation
+
+        nbest_list_fail = rrp.parse('# ! ? : -')
+        self.assertEqual(len(nbest_list_fail), 0)
+        nbest_list_fail = rrp.parse('# ! ? : -', rerank=False)
+        self.assertEqual(len(nbest_list_fail), 0)
+        self.assertEqual(str(nbest_list_fail), '0 x')
+        nbest_list_fail = rrp.parse_constrained('# ! ? : -'.split(), {})
+        self.assertEqual(len(nbest_list_fail), 0)
+    def test_3_tree_funcs(self):
+        # these are here and not in test_tree since they require a parsing
+        # model to have been loaded
         tree1 = Tree('(S1 (S (NP (DT This)) (VP (AUX is) (NP (DT a) '
                      '(NN sentence))) (. .)))')
         tree2 = Tree('(S1 (S (NP (NNP This)) (VP (AUX is) (NP (DT a) '
@@ -661,8 +848,22 @@ class RerankingParserTests(unittest.TestCase):
                                    dict(fscore=0.44, gold=4, matched=2,
                                         precision=0.40, recall=0.50, test=5))
 
+        # tree log prob
+        self.assertAlmostEqual(tree1.log_prob(), -30.398166970084645)
+        self.assertAlmostEqual(tree2.log_prob(), -46.434686430443755)
+        self.assertAlmostEqual(tree3.log_prob(), -55.57598769806526)
+
+        # head finding and dependencies
+        self.assertEqual(tree1.head().token, 'is')
+        self.assertEqual(tree1.head().label, 'AUX')
+        deps = list(tree1.dependencies())
+        self.assertEqual(len(deps), 4)
+        gov, dep = deps[0]
+        self.assertEqual(gov.token, 'sentence')
+        self.assertEqual(dep.token, 'a')
+
     def assertDictAlmostEqual(self, d1, d2, places=2):
-        self.assertEqual(d1.keys(), d2.keys())
+        self.assertEqual(sorted(d1.keys()), sorted(d2.keys()))
         for k, v1 in d1.items():
             v2 = d2[k]
             self.assertAlmostEqual(v1, v2, places=places)

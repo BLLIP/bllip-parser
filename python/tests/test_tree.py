@@ -1,8 +1,17 @@
-# TODO: untested:
-#       Tree.sd_tokens
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
 
 import unittest
-import bllipparser
+from bllipparser import Tree
 
 sample_tree = '(S1 (S (NP (DT This)) (VP (VBZ is) (NP (DT a) (ADJP ' \
               '(RB fairly) (JJ simple)) (NN parse) (NN tree))) (. .)))'
@@ -13,7 +22,7 @@ sample_tree_pretty = '''(S1 (S (NP (DT This))
 
 class TreeTests(unittest.TestCase):
     def test_tree_basics(self):
-        tree = bllipparser.Tree(sample_tree)
+        tree = Tree(sample_tree)
         assert str(tree) == sample_tree
         assert tree.pretty_string() == sample_tree_pretty
         assert tree.tokens() == ('This', 'is', 'a', 'fairly', 'simple',
@@ -72,27 +81,65 @@ class TreeTests(unittest.TestCase):
                         for subtree in tree.all_subtrees()]
         assert pairs == actual_pairs
 
+        # index into a preterminal
+        self.assertRaises(IndexError, lambda: tree[0][0][0][0])
+        # index a child that doesn't exist
+        self.assertRaises(IndexError, lambda: tree[500])
+        self.assertRaises(IndexError, lambda: tree[0][0][7777])
+        self.assertRaises(IndexError, lambda: tree[-30])
+
+        # repr shouldn't crash, but we don't check (or rely on) its form
+        repr(tree)
+        repr(tree[0])
+        repr(tree[0][1])
+        repr(tree[0][1][0])
+
+    def test_tree_asciitree(self):
+        tree = Tree('(S1 (NP (NN asciitree)) (VP (VBZ is) (NP (DT a) (NN dependency))))')
+        self.assertEqual(tree.format_asciitree().strip(), '''S1 
+  +-- NP 
+  |  +-- NN asciitree
+  +-- VP 
+     +-- VBZ is
+     +-- NP 
+        +-- DT a
+        +-- NN dependency'''.strip())
+
+    def test_tree_nltk(self):
+        tree = Tree('(S1 (NP (NN NLTK)) (VP (VBZ is) (NP (DT a) (NN dependency))))')
+        nltk_tree = tree.as_nltk_tree()
+        self.assertEqual(len(nltk_tree), 2)
+        self.assertEqual(len(nltk_tree.leaves()), 4)
+        self.assertEqual(str(nltk_tree), str(tree))
+        self.assertEqual(nltk_tree.label(), 'S1')
+        self.assertRaises(ValueError, tree.visualize, 'bad vis method')
+
     def test_tree_errors(self):
         # test issue #33
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(())')
+        self.assertRaises(RuntimeError, Tree, '(())')
         # make sure we can still load good trees after an error
-        bllipparser.Tree(sample_tree)
-        bllipparser.Tree(sample_tree)
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(BADTOPTAG hi)')
-        self.assertRaises(RuntimeError, bllipparser.Tree,
+        Tree(sample_tree)
+        Tree(sample_tree)
+        self.assertRaises(RuntimeError, Tree, '(BADTOPTAG hi)')
+        self.assertRaises(RuntimeError, Tree,
                           'Does not start with a paren')
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(S1 eh)')
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(S1')
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(S1 ((')
-        self.assertRaises(RuntimeError, bllipparser.Tree, '(S1 (NP')
-        bllipparser.Tree(sample_tree)
+        self.assertRaises(RuntimeError, Tree, '(S1 eh)')
+        self.assertRaises(RuntimeError, Tree, '(S1')
+        self.assertRaises(RuntimeError, Tree, '(S1 ((')
+        self.assertRaises(RuntimeError, Tree, '(S1 (NP')
+        Tree(sample_tree)
+
+        self.assertRaises(TypeError, Tree, 1)
+        self.assertRaises(TypeError, Tree, None)
+        self.assertRaises(TypeError, Tree, {})
+        self.assertRaises(TypeError, Tree, len)
 
     def test_tree_trees_from_string(self):
-        trees = bllipparser.Tree.trees_from_string('(S1(X    (NN junk)))')
+        trees = Tree.trees_from_string('(S1(X    (NN junk)))')
         assert len(trees) == 1
         assert str(trees[0]) == '(S1 (X (NN junk)))'
 
-        trees2 = bllipparser.Tree.trees_from_string('''(S1 (S (NP (DT This))
+        trees2 = Tree.trees_from_string('''(S1 (S (NP (DT This))
     (VP (VBZ is) (NP (DT a) (ADJP (RB fairly) (JJ simple)) (NN parse) (NN tree))) (. .)))
 (S1 (X    (NN junk)))
 (S1(X(NN nospace)))
@@ -108,15 +155,39 @@ class TreeTests(unittest.TestCase):
         assert str(trees2[2]) == '(S1 (X (NN nospace)))'
         assert str(trees2[3]) == '(S1 (NP (DT another) (JJ junk) (NN tree)))'
 
-        trees3 = bllipparser.Tree.trees_from_string('')
+        trees3 = Tree.trees_from_string('')
         assert len(trees3) == 0
 
-        trees4 = bllipparser.Tree.trees_from_string(sample_tree)
+        trees4 = Tree.trees_from_string(sample_tree)
         assert len(trees4) == 1
         assert str(trees4[0]) == sample_tree
 
+    def test_tree_trees_from_file(self):
+        import tempfile
+        tree_file = tempfile.NamedTemporaryFile('w+t', delete=False)
+        print(tree_file)
+        print(tree_file.name)
+        tree_file.write('''(S1 (S (NP (DT This))
+    (VP (VBZ is) (NP (DT a) (ADJP (RB fairly) (JJ simple)) (NN parse) (NN tree))) (. .)))
+(S1 (X    (NN junk)))
+(S1(X(NN nospace)))
+
+(S1 (NP (DT another)
+                                    (JJ junk)
+
+        (NN tree)))
+''')
+        tree_file.flush()
+
+        trees2 = Tree.trees_from_file(tree_file.name)
+        assert len(trees2) == 4
+        assert str(trees2[0]) == sample_tree
+        assert str(trees2[1]) == '(S1 (X (NN junk)))'
+        assert str(trees2[2]) == '(S1 (X (NN nospace)))'
+        assert str(trees2[3]) == '(S1 (NP (DT another) (JJ junk) (NN tree)))'
+
     def test_tree_modify_tree(self):
-        tree = bllipparser.Tree(sample_tree)
+        tree = Tree(sample_tree)
         assert str(tree) == sample_tree
         assert str(tree[0][1][0]) == '(VBZ is)'
 
@@ -134,6 +205,9 @@ class TreeTests(unittest.TestCase):
         assert str(tree[0][1]) == '(VP-SUFFIX (ZZZ displays) (NP (DT a) ' \
                                   '(ADJP (RB fairly) (JJ simple)) (NN ' \
                                   'parse) (NN tree)))'
+
+        self.assertRaises(ValueError, setattr, tree[0], 'token', 'anything')
+        self.assertRaises(ValueError, setattr, tree[0][-1], 'token', None)
 
         tree[0][-1].token = '!'
         assert str(tree) == '(S1 (S (NP (DT This)) (VP-SUFFIX (ZZZ ' \

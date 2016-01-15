@@ -71,6 +71,13 @@
 #
 # GCCFLAGS = -march=native -mfpmath=sse -msse2 -mmmx -m32
 
+# Sample values for clang on Mac OS X
+#
+# GCCFLAGS="-Wno-deprecated-declarations"
+# FOPENMP="-liomp5"
+#
+# NOTE: libiomp needs to be installed, install using homebrew: brew install libiomp
+
 # CFLAGS is used for all C and C++ compilation
 #
 CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(GCCFLAGS)

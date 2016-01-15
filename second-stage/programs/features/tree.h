@@ -1099,7 +1099,7 @@ void map_filenamefile_trees(const char* filenamefile, Proc& proc, bool downcase_
     readtree_lineno = 1;
 
     std::auto_ptr<tree> tp;
-    while ((tp = readtree_root(fp, downcase_flag)).get()) 
+    while ((tp = std::auto_ptr<tree>(readtree_root(fp, downcase_flag))).get())
       proc(tp.get());
 
     fclose(fp);

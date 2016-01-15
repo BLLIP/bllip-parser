@@ -28,5 +28,6 @@ Contributors
 - `Ben Swanson <https://github.com/chonger>`__
 - Jenine Turner-Trauring
 - `Jim White <https://github.com/jimwhite>`__
+- `Didzis Gosko <https://github.com/didzis>`__
 
 (and many others with helpful bug reports and questions!)

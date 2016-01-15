@@ -468,7 +468,9 @@ corpus_type *read_corpus_file(corpusflags_type *flags, const char* filename) {
  *! last highest scoring parse.
  */
 
+#ifndef __clang__
 __inline__
+#endif
 void sentence_scores(sentence_type *s, const Float w[], Float score[],
 		     Float *best_correct_score, int *best_correct_i,
 		     Float *best_score, int *best_i) {
@@ -1000,7 +1002,9 @@ Float exp_corpus_stats(corpus_type *c, const Float w[], Float dL_dw[],
  *! Returns the index of the last highest scoring parse.
  */
 
+#ifndef __clang__
 __inline__
+#endif
 int sentence_Pyx(sentence_type *s, const Float w[], Float Py_x[]) {
   
   int i, n = s->nparses, best_i = 0;

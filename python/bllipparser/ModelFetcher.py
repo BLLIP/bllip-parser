@@ -23,6 +23,8 @@ from os.path import basename, exists, join, expanduser
 DEFAULT_MODELS_DIR = '~/.local/share/bllipparser'
 
 class ModelInfo:
+    """Information about a unified BLLIP Parser model. Interface and
+    fields subject to change."""
     def __init__(self, model_desc, url, uncompressed_size):
         """uncompressed_size is approximate size in megabytes."""
         self.model_desc = model_desc
@@ -54,7 +56,16 @@ models = {
 
 class UnknownParserModel(ValueError):
     def __str__(self):
-        return "Unknown parser model name: " + self[0]
+        return "Unknown parser model name: " + self.args[0]
+
+def get_model_info(model_name):
+    """Given a model name, provides its information as a ModelInfo
+    object. Raises UnknownParserModel if model_name is not in the
+    model database."""
+    try:
+        return models[model_name]
+    except KeyError:
+        raise UnknownParserModel(model_name)
 
 def download_and_install_model(model_name, models_directory=None,
                                verbose=False):

@@ -1,23 +1,13 @@
 Release checklist
 -----------------
 0.  Ensure tests are passing:
-        python setup.py test
-    Or manually:
-        nosetests -dvx python/tests/
-        flake8 --ignore=E301,E302,E261 \
-               python/bllipparser/ParsingShell.py \
-               python/bllipparser/RerankingParser.py \
-               python/bllipparser/RerankerFeatureCorpus.py \
-               python/bllipparser/Utility.py \
-               python/bllipparser/__main__.py \
-               setup.py
+        shell> tox
 1.  Version bumps in python/bllipparser/__init__.py and setup.py
-2.  Update READMEs
+2.  Update README-python.rst
 3.  Sync README-python.rst content with python/bllipparser/__init__.py
     (roughly: vimdiff -g README-python.rst python/bllipparser/__init__.py)
-4.  Run nosetests and flake8 again, commit changes
+4.  Run tox again, commit changes
 5.  shell> python setup.py register sdist upload
-6.  Edit PyPI description, add keywords
-7.  Check that new PyPI release builds
-8.  ???
-9.  Goto 0a
+6.  Check that new PyPI release builds
+7.  ???
+8.  Goto 0a

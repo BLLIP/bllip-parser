@@ -15,7 +15,7 @@ SOURCES = best-parses.cc best-splhparses.cc best-spmparses.cc extract-spmultifea
 OBJECTS = $(patsubst %.l,%.o,$(patsubst %.c,%.o,$(SOURCES:%.cc=%.o)))
 PARALLEL_TOOLS_TARGETS = count-spfeatures count-nfeatures parallel-extract-nfeatures parallel-extract-spfeatures
 
-FOPENMP=-fopenmp
+FOPENMP?=-fopenmp
 
 top: $(TARGETS)
 
