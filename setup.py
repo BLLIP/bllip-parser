@@ -47,8 +47,8 @@ class Test(Command):
                                   '__init__.py', 'ModelFetcher.py')
         python_files = os.listdir(python_dir)
         python_files = [join(python_dir, filename) for filename in python_files
-                        if filename not in excluded_from_checking
-                        and filename.endswith('.py')]
+                        if filename not in excluded_from_checking and
+                        filename.endswith('.py')]
         python_files.append('setup.py')
 
         run('flake8', '--ignore=E301,E302,E261', *python_files)
