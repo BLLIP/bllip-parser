@@ -133,7 +133,7 @@ reranker_sources = [join(reranker_base, src) for src in
 reranker_module = Extension('bllipparser._JohnsonReranker',
                             sources=reranker_sources,
                             extra_compile_args=['-iquote', reranker_base,
-                                                '-DSWIGFIX'])
+                                                '-DSWIGFIX', '-std=c++11'])
 
 setup(name='bllipparser',
       version='2015.12.3',
