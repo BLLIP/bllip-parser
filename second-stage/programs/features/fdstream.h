@@ -22,6 +22,8 @@
  *  Jul 28, 2002: bugfix memcpy() => memmove()
  *                fdinbuf::underflow(): cast for return statements
  *  Aug 05, 2001: first public version
+ *
+ * Note: previously named fdstream.hpp
  */
 #ifndef BOOST_FDSTREAM_HPP
 #define BOOST_FDSTREAM_HPP

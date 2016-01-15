@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <cstring>
 #ifdef __clang__
-#include "fdstream.hpp"
+#include "fdstream.h"
 #else
 #include <ext/stdio_filebuf.h>
 #endif
