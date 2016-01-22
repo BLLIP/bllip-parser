@@ -80,10 +80,10 @@
 
 # CFLAGS is used for all C and C++ compilation
 #
-FOPENMP = -fopenmp
-CFLAGS = -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(FOPENMP) $(GCCFLAGS)
-LDFLAGS = $(GCCLDFLAGS) $(FOPENMP)
-EXEC = time
+CFLAGS ?= -MMD -O3 -Wall -ffast-math -finline-functions -fomit-frame-pointer -fstrict-aliasing $(FOPENMP) $(GCCFLAGS)
+LDFLAGS ?= $(GCCLDFLAGS) $(FOPENMP)
+FOPENMP ?= -fopenmp
+EXEC ?= time
 
 # for SWIG wrappers, use these flags instead
 #
@@ -97,7 +97,7 @@ EXEC = time
 # LDFLAGS = -g -Wall $(GCCLDFLAGS)
 # EXEC = valgrind
 
-CXXFLAGS = $(CFLAGS) -Wno-deprecated -std=c++11
+CXXFLAGS ?= $(CFLAGS) -Wno-deprecated -std=c++11
 export CFLAGS
 export CXXFLAGS
 export LDFLAGS
