@@ -578,21 +578,42 @@ $(EVALDIR)/dev-parsediffs.gz: $(WEIGHTSFILEGZ) $(FEATDIR)/test1.gz $(NBESTDIR)/s
 #                                                    #
 ######################################################
 
-# These paths are likely not very portable and may need to be edited
+# These paths are not portable and may need to be edited.
+# Switching to Maven NAR and SWIG plugins will hopefully streamline this.
 
-# this should be the path to jni.h
-SWIG_JAVA_GCCFLAGS ?= -I/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/include/ \
-	-I/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/include/linux/
-# -L should have the path to libstdc++.so
-SWIG_LINKER_FLAGS ?= -lstdc++ -L/usr/lib/gcc/x86_64-redhat-linux/4.4.4/
+# for SWIG_JAVA_GCCFLAGS, you may need to set -I with the path to jni.h
+SWIG_JAVA_GCCFLAGS ?= -fPIC -I/usr/lib/jvm/java-8-openjdk-amd64/include/ \
+   -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux/
+# for SWIG_LINKER_FLAGS, you may need to add -L/path/to/libstdc++.so
+SWIG_LINKER_FLAGS ?= -fPIC -lstdc++
+# this should include jars for Apache Commons Lang, Apache Commons IO, and JUnit
+SWIG_JAVA_CLASSPATH ?= "must:set:this"
+SWIG_JAVA_PACKAGE = edu.brown.cs.bllip.bllipparser.swig
+SWIG_JAVA_DIR = java/src/main/java/edu/brown/cs/bllip/bllipparser/swig
+# you may need to change SWIG_JAVA_SO_DIR or JNE won't be able to find the .so files
+# see https://github.com/fizzed/jne
+SWIG_JAVA_SO_DIR ?= java/src/main/resources/jne/linux/x64
 export SWIG_JAVA_GCCFLAGS
 export SWIG_LINKER_FLAGS
+export SWIG_JAVA_PACKAGE
 
+# this recipe is 80% hack for now
 swig-java: CXXFLAGS += -fPIC -fno-strict-aliasing -Wno-deprecated
+swig-java: CFLAGS += -fPIC -fno-strict-aliasing -Wno-deprecated
 swig-java: PARSE reranker-runtime
 	$(MAKE) -C $(NBESTPARSERBASEDIR)/PARSE swig-java
 	$(MAKE) -C second-stage/programs/features swig-java
+	mkdir -p $(SWIG_JAVA_DIR)
+	mkdir -p $(SWIG_JAVA_SO_DIR)
+	cp first-stage/PARSE/swig/java/lib/*.java $(SWIG_JAVA_DIR)
+	cp second-stage/programs/features/swig/java/lib/*.java $(SWIG_JAVA_DIR)
+	cp first-stage/PARSE/swig/java/lib/*.so $(SWIG_JAVA_SO_DIR)
+	cp second-stage/programs/features/swig/java/lib/*.so $(SWIG_JAVA_SO_DIR)
+	(cd java && mvn install)
 
 swig-clean:
 	$(MAKE) -C $(NBESTPARSERBASEDIR)/PARSE swig-clean
 	$(MAKE) -C second-stage/programs/features swig-clean
+	rm -rf $(SWIG_JAVA_DIR)
+	rm -rf java/target
+	rm -rf java/src/main/resources

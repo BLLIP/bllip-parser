@@ -65,3 +65,5 @@ MANIFEST
 bllipparser.egg-info
 .coverage
 .tox/
+/java/src/main/java/edu/brown/cs/bllip/bllipparser/swig/*.java
+/java/target
