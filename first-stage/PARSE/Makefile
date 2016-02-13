@@ -90,7 +90,7 @@ parseIt: $(PARSE_OBJS)
 	$(CXX) $(CFLAGS) $(PARSE_OBJS) -o parseIt -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
 
 oparseIt: $(OPARSE_OBJS)
-	$(CXX) $(CFLAGS) $(PARSE_OBJS) -o oparseIt 
+	$(CXX) $(CFLAGS) $(OPARSE_OBJS) -o oparseIt 
 
 evalTree: $(EVALTREE_OBJS)
 	$(CXX) $(CFLAGS) ${EVALTREE_OBJS} -o evalTree -D_REENTRANT -D_XOPEN_SOURCE=600 -lpthread
