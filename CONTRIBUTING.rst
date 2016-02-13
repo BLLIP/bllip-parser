@@ -13,10 +13,6 @@ specifically those marked
 
 Submitting changes
 ------------------
--  Sign the `Contributor License
-   Agreement <https://www.dropbox.com/s/inp9y16jplesy5d/cla-individual-bllip-parser.rtf?dl=1>`__.
-   Email us if you have any questions about this.
-
 -  Fork, then clone the repo::
 
        git clone git@github.com:your-username/bllip-parser.git
