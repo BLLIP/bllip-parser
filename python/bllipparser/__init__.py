@@ -198,6 +198,8 @@ BLLIP Parser includes an interactive shell for visualizing parses::
 
     shell% python -mbllipparser model
 
+(for Python 2.6, you'll need to run: ``python -mbllipparser.ParsingShell model``)
+
 Model can be a unified parsing model or first-stage parsing model on
 disk or the name of a model known by ModelFetcher, in which case it will
 be downloaded and installed if it hasn't been already. If no model is
@@ -382,6 +384,7 @@ Syntactic fusion:
 
 Release highlights
 ------------------
+- 2016.9.11: Python 3.5 support
 - 2015.12.3: Python 3 support, ``Tree`` visualization methods, better test coverage, bugfixes
 - 2015.08.18: New APIs for easier use, integrated ``ModelFetcher`` with ``ParsingShell``, automatically organize models
 - 2015.08.15: Add syntactic fusion, ``sigeval``, and new self-trained model
@@ -397,6 +400,6 @@ from .RerankingParser import RerankingParser, Tree, Sentence, tokenize
 
 __authors__ = 'Eugene Charniak, Mark Johnson, David McClosky, many others'
 __license__ = 'Apache 2.0'
-__version__ = '2015.12.3'
+__version__ = '2016.9.11'
 __maintainer__ = 'David McClosky'
 __email__ = 'notsoweird+pybllipparser@gmail.com'

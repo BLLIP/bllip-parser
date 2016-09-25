@@ -73,7 +73,7 @@ def maybe_run_swig(wrapper_filename, module_name, base_directory,
             return
 
     print('Generating ' + module_name + ' SWIG wrapper files')
-    run('swig', '-python', '-c++', '-module', module_name,
+    run('swig3.0', '-python', '-c++', '-module', module_name,
         '-I' + base_directory, '-Wall', '-builtin',
         '-outdir', 'python/bllipparser',
         '-o', wrapper_filename, swig_filename)
@@ -136,7 +136,7 @@ reranker_module = Extension('bllipparser._JohnsonReranker',
                                                 '-DSWIGFIX', '-std=c++11'])
 
 setup(name='bllipparser',
-      version='2015.12.3',
+      version='2016.9.11',
       description='Python bindings for the BLLIP natural language parser',
       long_description=open('README-python.rst').read(),
       author='Eugene Charniak, Mark Johnson, David McClosky, many others',

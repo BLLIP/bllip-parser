@@ -21,6 +21,7 @@ Contributors
 - `Shay Cohen <http://homepages.inf.ed.ac.uk/scohen/>`__
 - `Micha Elsner <http://www.ling.ohio-state.edu/~melsner/>`__
 - `Matthew Gerber <http://ptl.sys.virginia.edu/ptl/members/matthew-gerber>`__
+- Google Inc.
 - `Didzis Gosko <https://github.com/didzis>`__
 - `William P. Headden III <https://github.com/headdenw>`__
 - `Kristy Hollingshead <http://www.ihmc.us/groups/khollingshead/>`__

@@ -372,7 +372,8 @@ Syntactic fusion:
 
 Release highlights
 ------------------
-- 2015.12.3: Python 3 support (though see `this issue <https://github.com/BLLIP/bllip-parser/issues/47>`_ for the latest status on Python 3.5 support), ``Tree`` visualization methods, better test coverage, bugfixes
+- 2016.9.11: Python 3.5 support
+- 2015.12.3: Python 3 support, ``Tree`` visualization methods, better test coverage, bugfixes
 - 2015.08.18: New APIs for easier use, integrated ``ModelFetcher`` with ``ParsingShell``, automatically organize models
 - 2015.08.15: Add syntactic fusion, ``sigeval``, and new self-trained model
 - 2015.07.23: Fix build error, other build system improvements
