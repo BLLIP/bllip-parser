@@ -16,7 +16,7 @@ install:
   - bash -c "[ $BLLIPINTERFACE != "python" ] || sudo apt-get install -y swig3.0 python-nose"
   - bash -c "[ $BLLIPINTERFACE != "python" ] || sudo pip install python-coveralls tox flake8 nltk asciitree"
 before_script:
-  - bash -c "[ $BLLIPINTERFACE != "python" ] || swig -version"
+  - bash -c "[ $BLLIPINTERFACE != "python" ] || swig3.0 -version"
 script:
   - bash -c "[ $BLLIPINTERFACE != "cmd" ]    || make world"
   - bash -c "[ $BLLIPINTERFACE != "cmd" ]    || ./regression-test -fFtT"
