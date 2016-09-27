@@ -60,6 +60,16 @@ def is_newer(filename1, filename2):
     filename2."""
     return os.stat(filename1).st_mtime > os.stat(filename2).st_mtime
 
+def get_swig_command():
+    """Tries to find the latest installed version of swig."""
+    print("Searching for latest installed version of swig...")
+    if subprocess.call(['which', 'swig3.0']) == 0:
+        print("Using 'swig3.0'")
+        return 'swig3.0'
+    else:
+        print("Using 'swig'")
+        return 'swig'
+
 def maybe_run_swig(wrapper_filename, module_name, base_directory,
                    extra_deps=None):
     """Run SWIG if its outputs are missing or out of date."""
@@ -73,7 +83,8 @@ def maybe_run_swig(wrapper_filename, module_name, base_directory,
             return
 
     print('Generating ' + module_name + ' SWIG wrapper files')
-    run('swig3.0', '-python', '-c++', '-module', module_name,
+    swig = get_swig_command()
+    run(swig, '-python', '-c++', '-module', module_name,
         '-I' + base_directory, '-Wall', '-builtin',
         '-outdir', 'python/bllipparser',
         '-o', wrapper_filename, swig_filename)
