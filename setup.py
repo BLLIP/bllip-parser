@@ -89,6 +89,7 @@ def maybe_run_swig(wrapper_filename, module_name, base_directory,
         '-outdir', 'python/bllipparser',
         '-o', wrapper_filename, swig_filename)
 
+
 wrapper_path = 'swig/wrapper.C'
 
 #

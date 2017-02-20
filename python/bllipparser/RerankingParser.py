@@ -93,8 +93,10 @@ class Tree(object):
         """Return a string representing this tree using asciitree
         (requires the 'asciitree' package)."""
         import asciitree
+
         def child_iter(tree):
             return tree.subtrees()
+
         def text_str(tree):
             return ' %s%s %s' % (tree.label, tree.label_suffix,
                                  tree.token or '')
@@ -212,8 +214,10 @@ class Tree(object):
         the token on a non-preterminal to anything other than None will
         cause a ValueError. The same goes for setting a preterminal's
         token to None."""
+
         def fget(self):
             return self._tree.word() or None
+
         def fset(self, new_word):
             new_word = new_word or None
             if self.is_preterminal():
@@ -234,8 +238,10 @@ class Tree(object):
         this tree is a preterminal, this will be its part of speech,
         otherwise it will be the phrasal category. This property was
         previously a method."""
+
         def fget(self):
             return self._tree.term()
+
         def fset(self, new_label):
             self._tree.setTerm(new_label)
         return locals()
@@ -247,8 +253,10 @@ class Tree(object):
         "-SBJ" for subject") and coindexing ("-2"). In general, this
         will be the empty string for any trees produced by BLLIP parser
         but this property may be set if you read in gold trees."""
+
         def fget(self):
             return self._tree.ntInfo()
+
         def fset(self, new_tag):
             self._tree.setNtInfo(new_tag)
         return locals()

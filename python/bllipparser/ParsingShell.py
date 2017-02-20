@@ -319,5 +319,6 @@ def main(shell_class=ParsingShell):
     shell = shell_class(model)
     shell.cmdloop()
 
+
 if __name__ == "__main__":
     main()
