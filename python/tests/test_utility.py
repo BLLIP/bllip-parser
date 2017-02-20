@@ -13,7 +13,7 @@
 from __future__ import print_function
 
 import unittest
-from bllipparser.Utility import import_maybe
+from bllipparser.Utility import cleanup_input_token, import_maybe
 
 class UtilityTests(unittest.TestCase):
     def test_import_maybe(self):
@@ -22,3 +22,19 @@ class UtilityTests(unittest.TestCase):
         self.assertEqual(time, time_module)
         nothing = import_maybe('adummypackagenamewhichbetternotexist')
         self.assertEqual(nothing, None)
+
+    def test_cleanup_input_token(self):
+        for bad_token in (None, '', ' ', '  ', ' \t', '\n\n\n', 'a b',
+                          'c\nd', 'c\nd', '   qux', 'a b c d e'):
+            self.assertRaises(ValueError, cleanup_input_token,
+                              bad_token)
+        for good_token in ('a', 'Hello', 'badlytokenizedbutnotinvalid.',
+                           '&', '<', '>'):
+            self.assertEqual(good_token, cleanup_input_token(good_token))
+
+        self.assertEqual('1', cleanup_input_token(1))
+        self.assertEqual('-LRB-', cleanup_input_token('('))
+        self.assertEqual('-LSB-', cleanup_input_token('['))
+        self.assertEqual('-RCB-', cleanup_input_token('}'))
+        self.assertEqual('-LRB--LRB-', cleanup_input_token('(('))
+        self.assertEqual('a-LRB-b-RRB-', cleanup_input_token('a(b)'))

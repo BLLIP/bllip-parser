@@ -11,8 +11,8 @@ import subprocess
 from os.path import join, exists
 
 # If you are creating a sdist from the full bllipparser code base, you
-# may need the swig and flex packages. The Python packages include the
-# outputs of these commands so you can build the Python modules without
+# may need the swig3.0 (or swig) and flex packages. The Python packages include
+# the outputs of these commands so you can build the Python modules without
 # these dependencies.
 
 def run(*args):

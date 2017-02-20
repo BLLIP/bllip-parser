@@ -18,7 +18,7 @@ from os.path import exists, join
 from six import string_types
 from . import CharniakParser as parser
 from . import JohnsonReranker as reranker
-from .Utility import normalize_logprobs
+from .Utility import cleanup_input_token, normalize_logprobs
 
 class Tree(object):
     """Represents a single parse (sub)tree in Penn Treebank format. This
@@ -351,11 +351,8 @@ class Sentence:
         elif isinstance(text_or_tokens, string_types):
             self.sentrep = parser.tokenize('<s> ' + text_or_tokens + ' </s>')
         else:
-            # text_or_tokens is a sequence -- need to make sure that each
-            # element is a string to avoid crashing
-            text_or_tokens = [parser.ptbEscape(str(token))
-                              for token in text_or_tokens]
-            self.sentrep = parser.SentRep(text_or_tokens)
+            tokens = [cleanup_input_token(token) for token in text_or_tokens]
+            self.sentrep = parser.SentRep(tokens)
     def __repr__(self):
         """Represent the Sentence as a string."""
         return "%s(%s)" % (self.__class__.__name__, self.tokens())

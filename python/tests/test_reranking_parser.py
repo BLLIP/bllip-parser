@@ -35,6 +35,24 @@ class MiscToolTests(unittest.TestCase):
         self.assertEqual(s3.tokens(), ['Hi', 'there', '.'])
         self.assertEqual(len(s3), 3)
 
+    def test_sentence_bad_input(self):
+        self.assertRaises(ValueError, Sentence,
+                          [''])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', '', 'b'])
+
+        self.assertRaises(ValueError, Sentence,
+                          ['a', ' ', 'b'])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', '  ', 'b'])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', '\t', 'b'])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', 'b ', 'c'])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', 'b ', '\nc'])
+        self.assertRaises(ValueError, Sentence,
+                          ['a', 'b c', 'd'])
     def test_sentences_from_string(self):
         sentences = Sentence.sentences_from_string('<s> Test </s>')
         self.assertEqual(len(sentences), 1)

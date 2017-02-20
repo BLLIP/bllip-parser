@@ -10,8 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import math
 import importlib
+import math
+import re
+from . import CharniakParser as parser
+
+whitespace_re = re.compile(r'\s')
 
 def import_maybe(module_name):
     "Import a module and return it if available, otherwise returns None."
@@ -48,3 +52,18 @@ def normalize_logprobs(logprobs, exponent=1):
                  for logprob in logprobs]
     z = sum(exp_diffs)
     return [exp_diff / z for exp_diff in exp_diffs]
+
+def cleanup_input_token(token):
+    """Cleanup and validate an input pre-tokenized token.
+
+    This is here to ensure well-formed input and avoid downstream crashes."""
+    # need to make sure that each element is a string to avoid crashing
+    if token is None:
+        raise ValueError("Token can't be None: %r" % token)
+    token = str(token)
+    if whitespace_re.search(token):
+        raise ValueError("Can't have whitespace within a token: %r" % token)
+    if not token:
+        raise ValueError("Can't have an empty token: %r" % token)
+    token = parser.ptbEscape(token)
+    return token
