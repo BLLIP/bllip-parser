@@ -1,0 +1,32 @@
+#AN EXPLANATION ON HOW CONVERTION FOR BLLIPPARSER TO PYTHON3 WAS DONE#
+
+Downloaded source containing setup.py for bllipparser
+Converted all *.py files to python3 with 2to3
+did setup -> only with extensions for python
+Copied generated .so files (Charniak and Johnson) to new python files
+Checked that everything is converted to python3
+downloaded fitting model
+successfully tried for 1-best parsing
+
+In RerankingParser.py, the following change was made to support 1-best parsing:
+        try:
+            parses = parser.parse(sentence.sentrep)
+        except RuntimeError:
+            parses = []
+        #nbest_list = NBestList(sentence, parses, sentence_id)
+        #if rerank:
+        #    nbest_list.rerank(self)
+        #return nbest_list
+        return parses
+
+Function call for bllipparser python3:
+>>> from bllipparser_python3 import *
+>>> rrp = RerankingParser.from_unified_model_dir('/somedirectory/models/WSJ/')
+>>> sentence = rrp.parse('﻿To Sherlock Holmes she is always THE woman.')[0][1]
+>>> print(sentence)
+(S1 (S (NP (NP (NNP ﻿To) (NNP Sherlock) (NNP Holmes)) (NP (PRP she))) (VP (VBZ is) (ADVP (RB always)) (NP (DT THE) (NN woman))) (. .)))
+>>>
+
+Fiddled with return states and checked that you get string or list object for iteration over top parsed sentences.
+
+#QUICK AND DIRTY!!#
