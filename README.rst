@@ -51,7 +51,8 @@ Compiling the parser
          shell> setenv CXX g++
 
       Recent versions of OS X may have additional issues. See issues
-      `19 <http://github.com/BLLIP/bllip-parser/issues/19>`_ and `13
+      `60 <http://github.com/BLLIP/bllip-parser/issues/60>`_,
+      `19 <http://github.com/BLLIP/bllip-parser/issues/19>`_, and `13
       <https://github.com/BLLIP/bllip-parser/issues/13>`_ for more
       information.
 
