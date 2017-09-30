@@ -1,12 +1,19 @@
 sudo: required
 dist: trusty
 
+language: cpp
+compiler:
+  - gcc
+  - clang
 env:
   - BLLIPINTERFACE=cmd
   - BLLIPINTERFACE=python
 
-language: cpp
-compiler: gcc
+matrix:
+  exclude:
+    - compiler: clang
+    - env: BLLIPINTERFACE=cmd
+
 before_install:
   - sudo apt-get update
 install:
