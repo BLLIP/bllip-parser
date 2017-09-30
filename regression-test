@@ -259,6 +259,7 @@ class RegressionSuite:
             self.already_processed_wsj_input.add(section)
 
     def run_parser(self, input_filename, input_desc, parser_flags, parser_model=parser_model):
+        self.assert_file_exists(parser_bin)
         self.assert_file_exists(input_filename)
         self.assert_dir_exists(parser_model)
 
@@ -288,6 +289,7 @@ class RegressionSuite:
             self.run_reranker(parsed[0])
 
     def run_reranker(self, parsed_filename):
+        self.assert_file_exists(reranker_bin)
         self.assert_file_exists(parsed_filename)
 
         features_filename = '%s/features.gz' % reranker_model_dir
@@ -364,7 +366,6 @@ class RegressionSuite:
             now = datetime.datetime.now()
             working_dir = now.strftime('regression-test-%Y.%m.%d-%H.%M.%S')
             if not os.path.exists(working_dir):
-                os.mkdir
                 return working_dir
             else:
                 # wait a second and we'll have a different path
