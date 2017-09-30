@@ -230,11 +230,16 @@ class RegressionSuite:
             exit_code_desc = 'exit code %r, ' % return_code
         self.log('Command %r finished (%stook %s)' % \
             (command_desc, exit_code_desc, format_time(duration)))
-        if return_code != 0:
+        if output_filename:
+            stdout.flush()
+        if return_code:
+            if output_filename:
+                print "--- Contents of %s:" % output_filename
+                print file(output_filename).read()
+                print "--- End contents of %s:" % output_filename
             raise ValueError("Bad exit code for %r: %s" % (command, return_code))
 
         if output_filename:
-            stdout.flush()
             self.verify_output(output_filename)
 
     def process_wsj_for_input(self, sections=(22, 24)):
