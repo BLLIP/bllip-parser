@@ -75,7 +75,8 @@ class RegressionSuite:
             self.wsj_dir += '/'
 
         self.already_processed_wsj_input = set()
-        self.log_file = file(self.working_dir + 'regression.log', 'a')
+        self.log_filename = self.working_dir + 'regression.log'
+        self.log_file = file(self.log_filename, 'a')
         self.md5sums = md5sums
         self.options = options
 
@@ -234,9 +235,12 @@ class RegressionSuite:
             stdout.flush()
         if return_code:
             if output_filename:
-                print "--- Contents of %s:" % output_filename
+                print "--- Contents of command output %s:" % output_filename
                 print file(output_filename).read()
                 print "--- End contents of %s:" % output_filename
+            print "--- Contents of log file %s:" % self.log_filename
+            print file(self.log_filename).read()
+            print "--- End contents of %s:" % self.log_filename
             raise ValueError("Bad exit code for %r: %s" % (command, return_code))
 
         if output_filename:
