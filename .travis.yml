@@ -13,7 +13,7 @@ before_install:
   - sudo apt-get update
 install:
   - sudo apt-get install -y libboost-dev liblbfgs-dev flex
-  - bash -c "[ $BLLIPINTERFACE != "python" ] || sudo apt-get install -y swig3.0 python-nose"
+  - bash -c "[ $BLLIPINTERFACE != "python" ] || sudo apt-get install -y swig3.0 python-nose python-tk python3-tk"
   - bash -c "[ $BLLIPINTERFACE != "python" ] || sudo pip install python-coveralls tox flake8 nltk asciitree"
 before_script:
   - bash -c "[ $BLLIPINTERFACE != "python" ] || swig3.0 -version"
