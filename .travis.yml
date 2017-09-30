@@ -12,7 +12,7 @@ env:
 matrix:
   exclude:
     - compiler: clang
-    - env: BLLIPINTERFACE=cmd
+      env: BLLIPINTERFACE=cmd
 
 before_install:
   - sudo apt-get update
