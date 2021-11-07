@@ -26,7 +26,7 @@ def run(*args):
             message = "Command %r not found." % args[0]
         else:
             message = "OSError: %r" % exc
-    except AssertionError as exc:
+    except AssertionError:
         message = "Bad exit code from %r" % cmd
     if message:
         raise SystemExit("Error while running command: %s\nBuild failed!" %
@@ -46,9 +46,13 @@ class Test(Command):
         excluded_from_checking = ('CharniakParser.py', 'JohnsonReranker.py',
                                   '__init__.py', 'ModelFetcher.py')
         python_files = os.listdir(python_dir)
+
+        def valid_python_filename(filename):
+            if filename in excluded_from_checking:
+                return False
+            return filename.endswith('.py')
         python_files = [join(python_dir, filename) for filename in python_files
-                        if filename not in excluded_from_checking and
-                        filename.endswith('.py')]
+                        if valid_python_filename(filename)]
         python_files.append('setup.py')
 
         run('flake8', '--ignore=E301,E302,E261', *python_files)
@@ -148,7 +152,7 @@ reranker_module = Extension('bllipparser._JohnsonReranker',
                                                 '-DSWIGFIX', '-std=c++11'])
 
 setup(name='bllipparser',
-      version='2016.9.11',
+      version='2021.11.7',
       description='Python bindings for the BLLIP natural language parser',
       long_description=open('README-python.rst').read(),
       author='Eugene Charniak, Mark Johnson, David McClosky, many others',

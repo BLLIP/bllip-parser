@@ -372,6 +372,7 @@ Syntactic fusion:
 
 Release highlights
 ------------------
+- 2021.11.7: Re-released to work with modern SWIG versions and Python 3.9
 - 2016.9.11: Python 3.5 support
 - 2015.12.3: Python 3 support, ``Tree`` visualization methods, better test coverage, bugfixes
 - 2015.08.18: New APIs for easier use, integrated ``ModelFetcher`` with ``ParsingShell``, automatically organize models

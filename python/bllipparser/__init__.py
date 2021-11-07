@@ -384,6 +384,7 @@ Syntactic fusion:
 
 Release highlights
 ------------------
+- 2021.11.7: Re-released to work with modern SWIG versions and Python 3.9
 - 2016.9.11: Python 3.5 support
 - 2015.12.3: Python 3 support, ``Tree`` visualization methods, better test coverage, bugfixes
 - 2015.08.18: New APIs for easier use, integrated ``ModelFetcher`` with ``ParsingShell``, automatically organize models
@@ -400,6 +401,6 @@ from .RerankingParser import RerankingParser, Tree, Sentence, tokenize
 
 __authors__ = 'Eugene Charniak, Mark Johnson, David McClosky, many others'
 __license__ = 'Apache 2.0'
-__version__ = '2016.9.11'
+__version__ = '2021.11.07'
 __maintainer__ = 'David McClosky'
 __email__ = 'notsoweird+pybllipparser@gmail.com'
